@@ -40,21 +40,6 @@ public class GlobalExceptionHandling {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
-//    public ResponseEntity<ExceptionResponse> handleException (MethodArgumentNotValidException e) {
-//        var errorMessages = e.getFieldErrors()
-//                             .stream()
-//                             .map(DefaultMessageSourceResolvable::getDefaultMessage)
-//                             .toList().toString();
-//        var error = new ExceptionResponse(
-//                HttpStatusCode.valueOf(400).value(),
-//                HttpStatus.BAD_REQUEST,
-//                errorMessages,
-//                Timestamp.valueOf(LocalDateTime.now())
-//        );
-//
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
-//    }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ExceptionResponse> handleException (MethodArgumentNotValidException e) {

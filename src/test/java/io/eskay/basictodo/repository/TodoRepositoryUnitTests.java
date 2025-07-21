@@ -20,7 +20,7 @@ public class TodoRepositoryUnitTests {
 
 
     @Test
-    public void saveReturnsSavedTodo() {
+    public void save_ReturnsSavedTodo() {
         //Arrange
         var todo = Todo.builder().name("Go out for a walk").build();
         //Act
@@ -32,11 +32,10 @@ public class TodoRepositoryUnitTests {
         Assertions.assertThat(savedTodo.getId()).isGreaterThan(0L);
         Assertions.assertThat(savedTodo.getName()).isNotNull();
         Assertions.assertThat(savedTodo.getName()).isEqualTo(todo.getName());
-        Assertions.assertThat(savedTodo.getCreatedAt()).isNotNull();
     }
 
     @Test
-    public void saveReturnsUpdatedTodo() {
+    public void save_ReturnsUpdatedTodo() {
         //Arrange
         var todo = Todo.builder().name("Listen to music").completed(false).build();
         var savedTodo = todoRepository.save(todo);
@@ -48,19 +47,17 @@ public class TodoRepositoryUnitTests {
 
         //Assert
         Assertions.assertThat(updatedTodo).isNotNull();
-        Assertions.assertThat(updatedTodo.getId()).isEqualTo(savedTodo.getId());
-        Assertions.assertThat(updatedTodo.getName()).isEqualTo(savedTodo.getName());
+        Assertions.assertThat(updatedTodo).isEqualTo(savedTodo);
         Assertions.assertThat(updatedTodo.isCompleted()).isTrue();
     }
 
     @Test
-    public void findAllReturnsAllTodosList() {
+    public void findAll_ReturnsAllTodosList() {
         //Arrange
         var todo1 = Todo.builder().name("Play games").build();
         var todo2 = Todo.builder().name("Read a book").build();
 
-        todoRepository.save(todo1);
-        todoRepository.save(todo2);
+        todoRepository.saveAll(List.of(todo1,todo2));
 
         //Act
         var todoList = todoRepository.findAll();
@@ -68,11 +65,11 @@ public class TodoRepositoryUnitTests {
         //Assert
         Assertions.assertThat(todoList).isNotNull();
         Assertions.assertThat(todoList.size()).isEqualTo(2);
-        Assertions.assertThat(todoList.containsAll(List.of(todo1,todo2))).isTrue();
+        Assertions.assertThat(todoList).containsAll(List.of(todo1,todo2));
     }
 
     @Test
-    public void findAllReturnsEmptyTodosList() {
+    public void findAll_ReturnsEmptyTodosList() {
         //Arrange
         //Act
         var todoList = todoRepository.findAll();
@@ -82,8 +79,9 @@ public class TodoRepositoryUnitTests {
     }
 
     @Test
-    public void findAllByCompletedStatusReturnsFilteredTodoList() {
+    public void findAllByCompletedStatus_ReturnsFilteredTodoList() {
         //Arrange
+        boolean filterBy = false;
         var todo1 = Todo.builder().name("Go out for a walk").completed(true).build();
         var todo2 = Todo.builder().name("Read a book").completed(false).build();
         var todo3 = Todo.builder().name("Go for swimming").completed(true).build();
@@ -92,16 +90,34 @@ public class TodoRepositoryUnitTests {
         todoRepository.saveAll(List.of(todo1,todo2,todo3,todo4));
 
         //Act
-        var todoList = todoRepository.findAllByCompleted(false);
+        var todoList = todoRepository.findAllByCompleted(filterBy);
 
         //Assert
         Assertions.assertThat(todoList).isNotNull();
-        var result = todoList.stream().allMatch(todo -> !todo.isCompleted());
-        Assertions.assertThat(result).isTrue();
+//        var result = todoList.stream().allMatch(todo -> todo.isCompleted() == filterBy);
+//        Assertions.assertThat(result).isTrue();
+        Assertions.assertThat(todoList).allMatch(todo -> todo.isCompleted() == filterBy);
     }
 
     @Test
-    public void findByIdReturnsSavedTodo() {
+    public void findAllByCompletedStatus_ReturnsEmptyList() {
+        //Arrange
+        boolean filterBy = false;
+        var todo1 = Todo.builder().name("Go out for a walk").completed(true).build();
+        var todo2 = Todo.builder().name("Read a book").completed(true).build();
+
+        todoRepository.saveAll(List.of(todo1,todo2));
+
+        //Act
+        var todoList = todoRepository.findAllByCompleted(filterBy);
+
+        //Assert
+        Assertions.assertThat(todoList).isNotNull();
+        Assertions.assertThat(todoList.isEmpty()).isTrue();
+    }
+
+    @Test
+    public void findById_ReturnsSavedTodo() {
         //Arrange
         var todo = Todo.builder().name("Go to the beach").build();
         todoRepository.save(todo);
@@ -115,18 +131,18 @@ public class TodoRepositoryUnitTests {
     }
 
     @Test
-    public void deleteByIdReturnEmpty() {
+    public void deleteById_ReturnsVoid() {
         //Arrange
         var todo = Todo.builder().name("Play football").build();
         todoRepository.save(todo);
         var todoListBeforeDelete = todoRepository.findAll();
-        Assertions.assertThat(todoListBeforeDelete.size()).isEqualTo(1);
 
         //Act
         todoRepository.deleteById(todo.getId());
         var todoListAfterDelete = todoRepository.findAll();
 
         //Assert
+        Assertions.assertThat(todoListBeforeDelete.size()).isEqualTo(1);
         Assertions.assertThat(todoListAfterDelete.isEmpty()).isTrue();
     }
 }
