@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: TodoApplication
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, mappings, beans
+  info:
+    env:
+      enabled: true
+
+info:
+  app:
+    name: TodoApplication
+    version: 0.0.1-SNAPSHOT
+    description: A simple todo application that allows users to create, read, update and delete their todos
+    developers:
+      - Seth Ofosu Okyere - seth.okyere@amalitechtraining.org
