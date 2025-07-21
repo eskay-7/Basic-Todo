@@ -33,7 +33,7 @@ public class TodoController {
     public TodoController(TodoService todoService) {
         this.todoService = todoService;
     }
-    @Operation(summary = "Retrieve all todos", description = "Fetches all todos. Can accept a request-param" +
+    @Operation(summary = "Retrieve all todos", description = "Fetches all todos. Can accept an optional request-param" +
             " 'completed' to filter todos by their completed status")
     @GetMapping
     public ResponseEntity<List<TodoDto>> getAllTodos(
@@ -53,14 +53,7 @@ public class TodoController {
         return ResponseEntity.ok(todos);
     }
 
-    /* @ApiResponses(
-            {@ApiResponse(responseCode = "200 OK",
-                    description = "Successful retrieval of the specified todo object"),
-            @ApiResponse(responseCode = "404",
-                    description = "Todo object not found",
-            content = {@Content(mediaType = "application/json",schema = @Schema(implementation = ErrorResponse.class))})}*/
-
-    @Operation(summary = "Retrieve a todo object", description = "Fetches a todo with  {id}")
+    @Operation(summary = "Retrieve todo object", description = "Fetch todo with {id}")
     @GetMapping("{id}")
     public ResponseEntity<TodoDto> getTodo
             (@PathVariable
@@ -74,8 +67,8 @@ public class TodoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Create a todo",
-            description = "Creates a new todo object using the name provided in request body")
+    @Operation(summary = "Create todo",
+            description = "Creates a new todo object using data provided in request-body")
     public ResponseEntity<TodoDto> createTodo(
             @RequestBody
             @Valid
@@ -104,7 +97,7 @@ public class TodoController {
     }
 
     @PatchMapping ("{id}")
-    @Operation(summary = "Check or uncheck a todo as completed", description = "Toggles the 'completed' status of a todo by {id}")
+    @Operation(summary = "Check or uncheck a todo as completed", description = "Toggles the 'completed' status of a todo with {id}")
     public ResponseEntity<TodoDto> toggleCompletedStatus(
             @PathVariable @Parameter(
                     name = "id",
@@ -121,10 +114,13 @@ public class TodoController {
     @Operation(summary = "Delete todo object", description = "Deletes a todo object with {id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("{id}")
-    public ResponseEntity<?> deleteTodo(@PathVariable
-                                            @Parameter(name = "{id}",
-                                            description = "{id} of todo to delete",
-                                            required = true) Long id) {
+    public ResponseEntity<?> deleteTodo(
+            @PathVariable
+            @Parameter(
+                    name = "id",
+                    description = "{id} of todo object",
+                    required = true)
+            Long id) {
         todoService.deleteTodo(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

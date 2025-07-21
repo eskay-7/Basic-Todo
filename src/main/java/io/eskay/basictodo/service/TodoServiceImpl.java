@@ -54,32 +54,37 @@ public class TodoServiceImpl implements TodoService {
     @Override
     public TodoDto createTodo(TodoRequest request) {
         var todo = requestMapper.apply(request);
-        var createdUser = repository.save(todo);
-        return dtoMapper.apply(createdUser);
+        var createdTodo = repository.save(todo);
+        return dtoMapper.apply(createdTodo);
     }
 
     @Override
     public TodoDto toggleCompletedStatus(Long id, boolean isComplete) {
-        var todoInDB = repository
+        var foundTodo = repository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Todo with id '%d' not found, check and try again".formatted(id)));
-        todoInDB.setCompleted(isComplete);
-        return dtoMapper.apply(repository.save(todoInDB));
+        foundTodo.setCompleted(isComplete);
+        return dtoMapper.apply(repository.save(foundTodo));
     }
 
     @Override
     public void deleteTodo(Long id) {
+        var foundTodo = repository
+                .findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Todo with id '%d' not found, check and try again".formatted(id)));
+
         repository.deleteById(id);
     }
 
     @Override
     public TodoDto updateTodo(Long id, String name) {
-        var todoInDB = repository
+        var foundTodo = repository
                 .findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Todo with id '%d' not found, check and try again".formatted(id)));
-        todoInDB.setName(name);
-        return dtoMapper.apply(repository.save(todoInDB));
+        foundTodo.setName(name);
+        return dtoMapper.apply(repository.save(foundTodo));
     }
 }
