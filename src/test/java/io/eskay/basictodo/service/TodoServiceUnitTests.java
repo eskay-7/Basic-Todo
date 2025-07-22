@@ -1,6 +1,6 @@
 package io.eskay.basictodo.service;
 
-import io.eskay.basictodo.dto.request.TodoRequest;
+import io.eskay.basictodo.dto.request.CreateTodoRequest;
 import io.eskay.basictodo.dto.response.TodoDto;
 import io.eskay.basictodo.entity.Todo;
 import io.eskay.basictodo.exception.ResourceNotFoundException;
@@ -14,12 +14,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import static org.awaitility.Awaitility.given;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -135,7 +133,7 @@ public class TodoServiceUnitTests {
     @Test
     public void createTodo_ReturnsSavedTodoDto() {
         //Arrange
-        var request = new TodoRequest("Go for movies");
+        var request = new CreateTodoRequest("Go for movies");
         var todo = Todo.builder()
                 .id(1L).name(request.name())
                 .createdAt(LocalDate.now())
