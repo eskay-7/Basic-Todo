@@ -7,14 +7,12 @@ import io.eskay.basictodo.exception.ResourceNotFoundException;
 import io.eskay.basictodo.mapper.TodoDtoMapper;
 import io.eskay.basictodo.mapper.TodoRequestMapper;
 import io.eskay.basictodo.repository.TodoRepository;
-import org.assertj.core.api.Assert;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.Answer;
 
 import javax.swing.text.html.Option;
 import java.time.LocalDate;
