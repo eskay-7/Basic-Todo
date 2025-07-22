@@ -30,3 +30,7 @@ info:
     description: A simple todo application that allows users to create, read, update and delete their todos
     developers:
       - Seth Ofosu Okyere - seth.okyere@amalitechtraining.org
+
+cors:
+  frontend:
+    url: ${CORS_FRONTEND_URL}
