@@ -6,6 +6,7 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -47,7 +48,10 @@ public class GlobalExceptionHandling {
                 .getAllErrors()
                 .stream()
                 .map(DefaultMessageSourceResolvable::getDefaultMessage)
-                .toList().toString();
+                .toList()
+                .toString()
+                .replace("[","")
+                .replace("]","");
         var error = new ExceptionResponse(
                 HttpStatusCode.valueOf(400).value(),
                 HttpStatus.BAD_REQUEST,
@@ -64,12 +68,27 @@ public class GlobalExceptionHandling {
                 .stream()
                 .map(ConstraintViolation::getMessage)
                 .toList()
-                .toString();
+                .toString()
+                .replace("[","")
+                .replace("]","");
 
         ExceptionResponse error = new ExceptionResponse(
                 HttpStatusCode.valueOf(400).value(),
                 HttpStatus.BAD_REQUEST,
                 errorMessages,
+                Timestamp.valueOf(LocalDateTime.now())
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ExceptionResponse> handleConstraintViolationException(HttpMessageNotReadableException e) {
+
+        ExceptionResponse error = new ExceptionResponse(
+                HttpStatusCode.valueOf(400).value(),
+                HttpStatus.BAD_REQUEST,
+                e.getMessage(),
                 Timestamp.valueOf(LocalDateTime.now())
         );
 
