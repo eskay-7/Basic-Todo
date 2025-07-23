@@ -2,11 +2,15 @@ package io.eskay.basictodo.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.eskay.basictodo.dto.request.CreateTodoRequest;
+import io.eskay.basictodo.dto.request.UpdateTodoRequest;
 import io.eskay.basictodo.dto.response.TodoDto;
 import io.eskay.basictodo.entity.Todo;
 import io.eskay.basictodo.service.TodoService;
+import org.assertj.core.api.Assertions;
+import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -55,6 +59,8 @@ public class TodoControllerUnitTests {
 
         //Assert
         response.andExpect(MockMvcResultMatchers.status().isCreated());
+        response.andExpect(MockMvcResultMatchers.jsonPath("id", CoreMatchers.is(1)));
+        response.andExpect(MockMvcResultMatchers.jsonPath("name", CoreMatchers.is(todoDto.name())));
         System.out.println(response.andReturn().getResponse().getContentAsString());
     }
 
@@ -62,7 +68,8 @@ public class TodoControllerUnitTests {
     public void getAllTodos_ReturnsTodoDtoList() throws Exception{
         //Arrange
         var todoDto = new TodoDto(7L,"Play music",LocalDate.now(),true);
-        when(todoService.getAllTodos()).thenReturn(List.of(todoDto));
+        var todoDto2 = new TodoDto(8L,"Go for a walk",LocalDate.now(),false);
+        when(todoService.getAllTodos()).thenReturn(List.of(todoDto,todoDto2));
 
         //Act
         var response = mockMvc.perform(get("/api/todos"));
@@ -70,8 +77,7 @@ public class TodoControllerUnitTests {
         //Assert
         response.andExpect(MockMvcResultMatchers.status().isOk());
         verify(todoService, never()).getAllTodosByCompletedStatus(anyBoolean());
-        var responseValue = response.andReturn().getResponse().getContentAsString();
-        System.out.println(responseValue);
+        System.out.println(response.andReturn().getResponse().getContentAsString());
     }
 
     @Test
@@ -102,23 +108,32 @@ public class TodoControllerUnitTests {
         response.andExpect(MockMvcResultMatchers.status().isOk());
         verify(todoService).getAllTodosByCompletedStatus(filterBy);
         verify(todoService, never()).getAllTodos();
+        response.andExpect(MockMvcResultMatchers.jsonPath("size()",CoreMatchers.is(2)));
+        var responseValue = response.andReturn().getResponse().getContentAsString();
+        Assertions.assertThat(responseValue).contains(List.of(todo1Dto.name(),todo2Dto.name()));
         System.out.println(response.andReturn().getResponse().getContentAsString());
     }
 
-//    @Test
-//    public void updateTodo_ReturnsUpdatedTodoDto() throws Exception {
-//        //Arrange
-//        String newName = "Go for fishing";
-//        var todoDto = new TodoDto(7L,newName,LocalDate.now(),true);
-//        when(todoService.updateTodo(7L,newName))
-//                .thenReturn(todoDto);
-//
-//        //Act
-//        var response = mockMvc.perform(put("/api/todos/7"));
-//
-//        //Assert
-//
-//    }
+    @Test
+    public void updateTodo_ReturnsUpdatedTodoDto() throws Exception {
+        //Arrange
+        Long id = 7L;
+        var request = new UpdateTodoRequest(id,"Watch the sky fall",true);
+        var todoDto = new TodoDto(id,request.name(),LocalDate.now(),request.completed());
+        when(todoService.updateTodo(request))
+                .thenReturn(todoDto);
+
+        //Act
+        var response = mockMvc.perform(put("/api/todos")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(request)));
+
+        //Assert
+        response.andExpect(MockMvcResultMatchers.status().isOk());
+        response.andExpect(MockMvcResultMatchers.jsonPath("id", CoreMatchers.is(7)));
+        response.andExpect(MockMvcResultMatchers.jsonPath("name", CoreMatchers.is(todoDto.name())));
+        System.out.println(response.andReturn().getResponse().getContentAsString());
+    }
 
 
     @Test
@@ -132,6 +147,21 @@ public class TodoControllerUnitTests {
 
         //Assert
         response.andExpect(MockMvcResultMatchers.status().isOk());
+        response.andExpect(MockMvcResultMatchers.jsonPath("id", CoreMatchers.is(7)));
+        response.andExpect(MockMvcResultMatchers.jsonPath("name", CoreMatchers.is(todoDto.name())));
         System.out.println(response.andReturn().getResponse().getContentAsString());
+    }
+
+    @Test
+    public void deleteTodo_ReturnsVoid() throws Exception {
+        //Arrange
+        Long id = 2L;
+
+        //Act
+        var response = mockMvc.perform(delete("/api/todos/2"));
+
+        //Assert
+        response.andExpect(MockMvcResultMatchers.status().isNoContent());
+        verify(todoService).deleteTodo(id);
     }
 }
